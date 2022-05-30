@@ -14,8 +14,8 @@ app.get("/login", function (__, res) {
 app.get("/user", function (__, res) {
   res.sendFile(__dirname + "/data/users.json");
 });
-app.get("user1/dashboard", function (__, res) {
-  res.sendFile(__dirname + "/data/dashboard.json");
+app.get("/products", function (__, res) {
+  res.sendFile(__dirname + "/data/products.json");
 });
 
 app.get("/images/:image", (req, res) => {
