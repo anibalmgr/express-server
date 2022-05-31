@@ -17,12 +17,12 @@ app.get("/user", function (__, res) {
 app.get("/products", function (__, res) {
   res.sendFile(__dirname + "/data/products.json");
 });
-
 app.get("/images/:image", (req, res) => {
-  console.log(req);
   res.sendFile(__dirname + `/data/images/${req.params.image}.webp`);
 });
-
+app.get("/products/:id", (__, res) => {
+  res.sendFile(__dirname + `/data/product.json`);
+});
 app.listen(port, function () {
   console.log(`Server started succefully in ${port}`);
 });
