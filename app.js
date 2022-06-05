@@ -28,6 +28,3 @@ app.get("/products/:id", (__, res) => {
 app.listen(port, function () {
   console.log(`Server started succefully in ${port}`);
 });
-
-
-// suli
