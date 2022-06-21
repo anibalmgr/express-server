@@ -5,16 +5,14 @@ var cors = require("cors");
 const User = require("./model/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const auth = require("./middleware/auth");
 
 const app = express();
 
 app.use(express.json());
 
-app.use(cors({origin: "http://localhost:3000", credentials: true}));
+app.use(cors({ origin: "http://localhost:3000", credentials: true }));
 
-app.get("/", function (__, res) {
-  res.sendFile(__dirname + "/index.html");
-});
 app.post("/register", async (req, res) => {
   try {
     const { first_name, last_name, email, password } = req.body;
@@ -41,7 +39,7 @@ app.post("/register", async (req, res) => {
     const token = jwt.sign(
       {
         user_id: user._id,
-        email
+        email,
       },
       process.env.TOKEN_KEY,
       { expiresIn: "1h" }
@@ -54,8 +52,35 @@ app.post("/register", async (req, res) => {
     console.log(err);
   }
 });
-app.get("/login", function (__, res) {
-  res.sendFile(__dirname + "/data/token.json");
+app.post("/login", async (req, res) => {
+  try {
+    const { username, password } = req.body.username;
+
+    if (!(email && password)) {
+      res.status(400).send("All inputs are required");
+    }
+    const user = User.findOne({ username });
+
+    if (user && (await bcrypt.compare(password, user.password))) {
+      const token = jwt.sign(
+        { user_id: user._id, email },
+        process.env.TOKEN_KEY,
+        {
+          expiresIn: "2h",
+        }
+      );
+      user.token = token;
+
+      res.status(200).json(user);
+    }
+
+    return res.status(400).send("Invalid Credentials");
+  } catch (err) {
+    console.log(err);
+  }
+});
+app.post("/welcome", auth, (req, res) => {
+  res.status(200).send("Welcome");
 });
 app.get("/user", function (__, res) {
   res.sendFile(__dirname + "/data/users.json");
