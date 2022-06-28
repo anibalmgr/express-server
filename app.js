@@ -11,10 +11,8 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 app.use(express.json());
-app.use(cors({ origin: process.env.CLIENT, credentials: true }));
+app.use(cors({ origin: process.env.CLIENT }));
 app.use(cookieParser());
-
-console.log(process.env.CLIENT);
 
 app.post("/register", async (req, res) => {
   try {
