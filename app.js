@@ -14,6 +14,8 @@ app.use(express.json());
 app.use(cors({ origin: process.env.CLIENT, credentials: true }));
 app.use(cookieParser());
 
+console.log(process.env.CLIENT);
+
 app.post("/register", async (req, res) => {
   try {
     const { first_name, last_name, email, password } = req.body;
@@ -55,9 +57,6 @@ app.post("/register", async (req, res) => {
   }
 });
 app.post("/login", async (req, res) => {
-  app.use(express.json());
-  app.use(cors({ origin: process.env.CLIENT, credentials: true }));
-  app.use(cookieParser());
   try {
     const { email, password } = req.body;
     console.log(password);
