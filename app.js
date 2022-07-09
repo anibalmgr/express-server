@@ -14,6 +14,9 @@ app.use(express.json());
 app.use(cors({ origin: process.env.CLIENT, credentials: true }));
 app.use(cookieParser());
 
+const env = process.env.NODE_ENV;
+console.log(env);
+
 app.post("/register", async (req, res) => {
   try {
     const { first_name, last_name, email, password } = req.body;
