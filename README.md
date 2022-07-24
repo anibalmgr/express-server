@@ -1,6 +1,6 @@
 # Minimal JWT exercise:
 
-A simple API running in [heroku](https://server-d-task.herokuapp.com/). It was created as the backend for (this project)[https://github.com/anibalmgr/cra-app]
+A simple API running in [heroku](https://server-d-task.herokuapp.com/). It was created as the backend for [this project[(https://github.com/anibalmgr/cra-app)
 
 ### If you want to start the api locally:
 
