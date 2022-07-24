@@ -1,4 +1,24 @@
-TODO
+# Minimal JWT exercise:
+
+A simple API running in [heroku](https://server-d-task.herokuapp.com/). It was created as the backend for (this project)[https://github.com/anibalmgr/cra-app]
+
+### If you want to start the api locally:
+
+1. Create a free Atlas Cluster [following this guide](https://www.mongodb.com/docs/atlas/getting-started/?_ga=2.114433351.13171983.1654950417-842438818.1654950416)
+
+2. create an .env file:
+
+    PORT=5000
+    MONGO_URI="your_mongo_uri_after_creating_your_free_atlas_cluster"
+    TOKEN_KEY="anyarray"
+    CLIENT="http://localhost:3000"
+
+3. To start your app from root:
+
+    node app.js
+
+
+
 
 Follow this tutorial from [here](https://www.section.io/engineering-education/how-to-build-authentication-api-with-jwt-token-in-nodejs/#step-6---implement-register-and-login-functionality)
 

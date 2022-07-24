@@ -1,6 +1,7 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+const { model, Schema } = mongoose;
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
   first_name: { type: String, default: null },
   last_name: { type: String, default: null },
   email: { type: String, unique: true },
@@ -8,4 +9,6 @@ const userSchema = new mongoose.Schema({
   token: { type: String },
 });
 
-module.exports = mongoose.model("user", userSchema);
+const user = model("user", userSchema);
+export const findOne = (e) => user.findOne(e);
+export const create = (e) => user.create(e);

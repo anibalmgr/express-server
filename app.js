@@ -1,42 +1,46 @@
-require("dotenv").config();
-require("./config/database").connect();
-const express = require("express");
-var cors = require("cors");
-const User = require("./model/user");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const auth = require("./middleware/auth");
-const cookieParser = require("cookie-parser");
+import { config } from "dotenv";
+import { connect } from "./config/database.js";
+import products from "./data/products.js";
+import express, { json } from "express";
+import cors from "cors";
+import { findOne, create } from "./model/user.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { verifyToken } from "./middleware/auth.js";
+import cookieParser from "cookie-parser";
+import path from "path";
+import { fileURLToPath } from "url";
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+config();
+connect();
+const env = process.env.NODE_ENV;
 const app = express();
-
-app.use(express.json());
+app.use(json());
 app.use(cors({ origin: process.env.CLIENT, credentials: true }));
 app.use(cookieParser());
 
-const env = process.env.NODE_ENV;
-console.log(env);
-
 app.post("/register", async (req, res) => {
   try {
-    const { first_name, last_name, email, password } = req.body;
-    console.log(password);
+    const { firstname, lastname, email, password } = req.body;
 
-    if (!(email && password && first_name && last_name)) {
-      res.status(400).send("All inputs are required");
+    if (!(email && password && firstname && lastname)) {
+      return res.status(400).send("All inputs are required");
     }
 
-    const oldUser = await User.findOne({ email });
+    const oldUser = await findOne({ email });
 
     if (oldUser) {
-      return res.status(409).send("User alredy exist");
+      return res
+        .status(409)
+        .json({ code: "USER_ALREADY_EXIST", message: "User already exists" });
     }
 
-    encPassword = await bcrypt.hash(password, 10);
+    const encPassword = await bcrypt.hash(password, 10);
 
-    const user = await User.create({
-      first_name,
-      last_name,
+    const user = await create({
+      firstname,
+      lastname,
       email: email.toLowerCase(),
       password: encPassword,
     });
@@ -49,7 +53,6 @@ app.post("/register", async (req, res) => {
       process.env.TOKEN_KEY,
       { expiresIn: "1h" }
     );
-
     user.token = token;
 
     res.status(201).json(user);
@@ -57,17 +60,27 @@ app.post("/register", async (req, res) => {
     console.log(err);
   }
 });
+
 app.post("/login", async (req, res) => {
   try {
+    if (!req.body) {
+      return res.status(400).json({ code: "NO_PAYLOAD" });
+    }
     const { email, password } = req.body;
-    console.log(password);
 
     if (!(email && password)) {
-      res.status(400).send("All inputs are required");
+      return res.status(400).json({
+        code: "MISSING_CREDENTIALS",
+        message: "All inputs are required",
+      });
     }
-    const user = await User.findOne({ email });
-    let compare = await bcrypt.compare(password, user.password);
-    console.log("compare", compare);
+    const user = await findOne({ email });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ code: "USER_NOT_FOUND", message: "User does not exist" });
+    }
 
     if (user && (await bcrypt.compare(password, user.password))) {
       const token = jwt.sign(
@@ -83,31 +96,34 @@ app.post("/login", async (req, res) => {
         .status(200)
         .cookie("access_token", token, {
           httpOnly: true,
-          // TODO: Check the right options
-          // secure: process.env.NODE_ENV === "production",
+          secure: env === "production",
         })
         .json({ user: user.email });
     } else {
-      res.status(400).send("Invalid Credentials");
+      res.status(400).json({
+        code: "INVALID_CREDENTIALS",
+        message: "Wrong email or password, please try again",
+      });
     }
   } catch (err) {
     console.log(err);
   }
 });
-app.post("/welcome", auth, (req, res) => {
-  res.status(200).send("Welcome");
+app.get("/products", verifyToken, function (__, res) {
+  res.status(200).json(products);
 });
-app.get("/user", function (__, res) {
-  res.sendFile(__dirname + "/data/users.json");
-});
-app.get("/products", function (__, res) {
-  res.sendFile(__dirname + "/data/products.json");
-});
-app.get("/images/:image", (req, res) => {
+app.get("/images/:image", verifyToken, (req, res) => {
   res.sendFile(__dirname + `/data/images/${req.params.image}.jpg`);
 });
-app.get("/products/:id", (__, res) => {
-  res.sendFile(__dirname + `/data/product.json`);
+app.get("/products/:id", verifyToken, (req, res) => {
+  const product = products.find((p) => p.sn === req.params.id);
+  if (!product) {
+    res.status(404).json({
+      code: "NO_PRODUCT",
+      message: `No product valid product with SN:${req.params.id}`,
+    });
+  }
+  res.status(200).json(product);
 });
 
-module.exports = app;
+export default app;

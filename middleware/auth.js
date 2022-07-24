@@ -1,20 +1,27 @@
-const jwt = require("jsonwebtoken");
+import jwt from "jsonwebtoken";
+import * as dotenv from "dotenv";
+const env = dotenv.config().parsed;
 
-const config = process.env;
+function getCookie(name, value) {
+  if (!value) {
+    return null;
+  }
+  const cookie = value.split(`=`);
+  if (name === cookie[0]) return cookie[1];
+}
 
-const verifyToken = (req, res, next) => {
-  const token = req.headers["x-access-token"];
+export const verifyToken = (req, res, next) => {
+  const token = getCookie("access_token", req.headers["cookie"]);
 
   if (!token) {
-    return res.status(403).send("A token is required for authentication");
+    return res.status(401).json({ code: "NO_CREDENTIALS" });
   }
+
   try {
-    const decoded = jwt.verify(token, config.TOKEN_KEY);
+    const decoded = jwt.verify(token, env.TOKEN_KEY);
     req.user = decoded;
   } catch (err) {
-    return res.status(401).send("Invalid Token");
+    return res.status(401).json({ code: "INVALID_CREDENTIALS" });
   }
   return next();
 };
-
-module.exports = verifyToken;
