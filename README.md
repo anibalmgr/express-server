@@ -18,8 +18,7 @@ A simple API running in [heroku](https://server-d-task.herokuapp.com/). It was c
     node app.js
 
 
-
-
+### References
 Follow this tutorial from [here](https://www.section.io/engineering-education/how-to-build-authentication-api-with-jwt-token-in-nodejs/#step-6---implement-register-and-login-functionality)
 
 Another good guide is [React Authentication: How to Store JWT in a Cookie](https://medium.com/@ryanchenkie_40935/react-authentication-how-to-store-jwt-in-a-cookie-346519310e81)
